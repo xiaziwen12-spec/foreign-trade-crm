@@ -1,5 +1,5 @@
 // ============================================
-// dashboard.js - 仪表盘模块
+// dashboard.js - 仪表盘模块（卡片/图表可点击跳转）
 // ============================================
 
 const Dashboard = {
@@ -12,44 +12,44 @@ const Dashboard = {
       <div class="dashboard">
         <h2 class="page-title">${projName}项目 · 仪表盘</h2>
 
-        <!-- 统计卡片 -->
+        <!-- 统计卡片（可点击跳转） -->
         <div class="stats-grid">
-          <div class="stat-card stat-primary">
+          <div class="stat-card stat-primary clickable" onclick="App.navigate('customers')" title="点击查看所有客户">
             <div class="stat-icon">👥</div>
             <div class="stat-info">
               <div class="stat-value">${stats.totalCustomers}</div>
               <div class="stat-label">客户总数</div>
             </div>
           </div>
-          <div class="stat-card stat-success">
+          <div class="stat-card stat-success clickable" onclick="App.navigate('customers')" title="点击查看本月新客户">
             <div class="stat-icon">🆕</div>
             <div class="stat-info">
               <div class="stat-value">+${stats.monthNewCustomers}</div>
               <div class="stat-label">本月新客户</div>
             </div>
           </div>
-          <div class="stat-card stat-warning">
+          <div class="stat-card stat-warning clickable" onclick="App.navigate('customers')" title="点击查看待跟进客户">
             <div class="stat-icon">⏰</div>
             <div class="stat-info">
               <div class="stat-value">${stats.pendingFollowUp}</div>
               <div class="stat-label">待跟进</div>
             </div>
           </div>
-          <div class="stat-card stat-info">
+          <div class="stat-card stat-info clickable" onclick="App.navigate('orders')" title="点击查看所有订单">
             <div class="stat-icon">📦</div>
             <div class="stat-info">
               <div class="stat-value">${stats.totalOrders}</div>
               <div class="stat-label">订单总数</div>
             </div>
           </div>
-          <div class="stat-card stat-money">
+          <div class="stat-card stat-money clickable" onclick="App.navigate('finance')" title="点击查看财务详情">
             <div class="stat-icon">💰</div>
             <div class="stat-info">
               <div class="stat-value">${Utils.formatCurrency(stats.monthRevenue, 'USD')}</div>
               <div class="stat-label">本月订单金额</div>
             </div>
           </div>
-          <div class="stat-card stat-danger">
+          <div class="stat-card stat-danger clickable" onclick="App.navigate('finance')" title="点击查看应收款明细">
             <div class="stat-icon">📌</div>
             <div class="stat-info">
               <div class="stat-value">${Utils.formatCurrency(stats.receivable, 'USD')}</div>
@@ -58,13 +58,13 @@ const Dashboard = {
           </div>
         </div>
 
-        <!-- 客户阶段概览 -->
+        <!-- 客户阶段概览（可点击筛选） -->
         <div class="dashboard-section">
           <h3>📊 客户跟进阶段</h3>
           <div class="stage-overview">
             ${Object.entries(stats.stageCounts).map(([stage, count]) => `
-              <div class="stage-item" data-stage="${stage}">
-                <span class="stage-dot stage-${stage}"></span>
+              <div class="stage-item stage-clickable" data-stage="${stage}" onclick="Dashboard.clickStage('${stage}')" title="点击查看${stage}的客户">
+                <span class="stage-dot stage-${this._stageClass(stage)}"></span>
                 <span class="stage-name">${stage}</span>
                 <span class="stage-count">${count}</span>
               </div>
@@ -89,7 +89,7 @@ const Dashboard = {
                       <td><span class="badge badge-${this._stageClass(c.stage)}">${c.stage}</span></td>
                       <td>${Utils.formatDate(c.nextFollowUp)}</td>
                       <td>
-                        <button class="btn-sm btn-link" onclick="App.navigate('customers'); App.scrollToCustomer('${c.id}')">查看</button>
+                        <button class="btn-sm btn-link" onclick="App.navigate('customers'); App.scrollToCustomer('${c.id}')">查看 →</button>
                       </td>
                     </tr>
                   `).join('')}
@@ -103,7 +103,7 @@ const Dashboard = {
             <h3>📋 最新动态</h3>
             <div class="recent-list">
               ${stats.recentOrders.slice(0, 3).map(o => `
-                <div class="recent-item order-item">
+                <div class="recent-item order-item clickable" onclick="App.navigate('orders')">
                   <span class="recent-dot dot-order"></span>
                   <div class="recent-content">
                     <strong>${o.customerName || o.productName || '订单'}</strong>
@@ -113,7 +113,7 @@ const Dashboard = {
                 </div>
               `).join('')}
               ${stats.recentCustomers.slice(0, 3).map(c => `
-                <div class="recent-item customer-item">
+                <div class="recent-item customer-item clickable" onclick="App.navigate('customers'); setTimeout(()=>App.scrollToCustomer('${c.id}'),300)">
                   <span class="recent-dot dot-customer"></span>
                   <div class="recent-content">
                     <strong>${c.name}</strong>
@@ -129,7 +129,7 @@ const Dashboard = {
 
         </div>
 
-        <!-- 订单状态 -->
+        <!-- 订单状态分布（可点击跳转） -->
         <div class="dashboard-section">
           <h3>📦 订单状态分布</h3>
           <div class="status-bars">
@@ -139,7 +139,7 @@ const Dashboard = {
                 const total = stats.totalOrders || 1;
                 const pct = Math.round(count / total * 100);
                 return `
-                  <div class="status-bar-item">
+                  <div class="status-bar-item status-bar-clickable" onclick="Dashboard.clickOrderStatus('${status}')" title="点击查看${status}的订单">
                     <div class="status-bar-label"><span>${status}</span><span>${count}单</span></div>
                     <div class="status-bar-track">
                       <div class="status-bar-fill status-${this._statusClass(status)}" style="width:${pct}%"></div>
@@ -152,6 +152,23 @@ const Dashboard = {
         </div>
       </div>
     `;
+  },
+
+  // 点击客户阶段 → 跳转到客户页并自动筛选
+  clickStage(stage) {
+    // 设置筛选条件到 Customers 模块
+    if (typeof Customers !== 'undefined') {
+      Customers.currentFilter = { stage: stage, search: '' };
+    }
+    App.navigate('customers');
+  },
+
+  // 点击订单状态 → 跳转到订单页并自动筛选
+  clickOrderStatus(status) {
+    if (typeof Orders !== 'undefined') {
+      Orders.currentFilter = { status: status, search: '' };
+    }
+    App.navigate('orders');
   },
 
   _stageClass(stage) {
