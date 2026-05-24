@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>外贸CRM系统</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="header">
+    <div class="header-left">
+      <h1 class="logo">📦 外贸CRM</h1>
+    </div>
+    <nav class="nav-tabs">
+      <button class="nav-btn active" data-page="dashboard">仪表盘</button>
+      <button class="nav-btn" data-page="customers">客户</button>
+      <button class="nav-btn" data-page="orders">订单</button>
+      <button class="nav-btn" data-page="products">产品</button>
+      <button class="nav-btn" data-page="finance">财务</button>
+    </nav>
+    <div class="header-right">
+      <!-- 云同步状态 -->
+      <div id="cloud-status" class="cloud-status" title="云同步状态">
+        <span class="cloud-dot" id="cloud-dot"></span>
+        <span class="cloud-text" id="cloud-text">未连接</span>
+      </div>
+      <button id="btn-cloud-settings" class="btn-sm btn-outline" title="云同步设置">☁️ 设置</button>
+      <button id="btn-cloud-sync" class="btn-sm btn-outline" title="立即同步">🔄 同步</button>
+      <button id="btn-export" class="btn-sm btn-outline" title="导出数据备份">📤 导出</button>
+      <button id="btn-import" class="btn-sm btn-outline" title="导入数据恢复">📥 导入</button>
+      <input type="file" id="file-import" accept=".json" style="display:none">
+    </div>
+  </header>
+
+  <!-- 项目切换栏 -->
+  <div class="project-bar">
+    <div class="project-tabs">
+      <button class="project-tab active" data-project="coffee-cups">☕ 咖啡纸杯项目</button>
+      <button class="project-tab" data-project="mate-cups">🧉 马黛茶杯项目</button>
+    </div>
+  </div>
+
+  <!-- 主内容区 -->
+  <main class="main-content" id="app">
+    <!-- 动态内容渲染区域 -->
+  </main>
+
+  <!-- 模态框通用容器 -->
+  <div class="modal-overlay" id="modal-overlay" style="display:none">
+    <div class="modal" id="modal-container">
+      <div class="modal-header">
+        <h3 id="modal-title"></h3>
+        <button class="modal-close" id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <!-- Toast 提示 -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/customers.js"></script>
+  <script src="js/orders.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
